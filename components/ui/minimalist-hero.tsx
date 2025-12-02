@@ -52,7 +52,7 @@ export const MinimalistHero = ({
     return (
         <div
             className={cn(
-                'relative flex h-screen w-full flex-col items-center justify-between overflow-hidden bg-background p-8 font-sans md:p-12',
+                'relative flex min-h-screen w-full flex-col items-center justify-between overflow-hidden bg-background p-8 font-sans md:p-12',
                 className
             )}
         >
@@ -61,7 +61,7 @@ export const MinimalistHero = ({
             <Navbar logoText={logoText} navLinks={navLinks} />
 
             {/* Main Content Area */}
-            <div className="relative grid w-full max-w-7xl flex-grow grid-cols-1 items-center md:grid-cols-3">
+            <div className="relative grid w-full max-w-7xl flex-grow grid-cols-1 items-center gap-8 md:grid-cols-3 md:gap-0 py-12 md:py-0">
                 {/* Left Text Content */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -92,7 +92,7 @@ export const MinimalistHero = ({
                     transition={{ duration: 0.6, delay: 1.2 }}
                     className="z-20 order-3 flex items-center justify-center text-center md:justify-start"
                 >
-                    <h1 className="text-5xl sm:text-7xl font-extrabold text-foreground md:text-8xl lg:text-9xl">
+                    <h1 className="text-4xl sm:text-6xl font-extrabold text-foreground md:text-8xl lg:text-9xl">
                         {overlayText.part1}
                         <br />
                         {overlayText.part2}

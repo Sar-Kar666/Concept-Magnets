@@ -253,29 +253,33 @@ export const FullScreenScrollFX = forwardRef<HTMLDivElement, FullScreenFXProps>(
             computePositions();
             measureAndCenterLists(index, false);
 
-            const st = ScrollTrigger.create({
-                trigger: fs,
-                start: "top top",
-                end: "bottom bottom",
-                pin: fixed,
-                pinSpacing: true,
-                onUpdate: (self) => {
-                    if (motionOff || isSnappingRef.current) return;
-                    const prog = self.progress;
-                    const target = Math.min(total - 1, Math.floor(prog * total));
-                    if (target !== lastIndexRef.current && !isAnimatingRef.current) {
-                        const next = lastIndexRef.current + (target > lastIndexRef.current ? 1 : -1);
-                        // programmatic one-step snap without extra sound
-                        goTo(next, false);
-                    }
-                    if (progressFillRef.current) {
-                        const p = (lastIndexRef.current / (total - 1 || 1)) * 100;
-                        progressFillRef.current.style.width = `${p}%`;
-                    }
-                },
-            });
+            let st: ScrollTrigger | null = null;
 
-            stRef.current = st;
+            // Delay ScrollTrigger creation to ensure scroll position is reset (ScrollToTop)
+            const timer = setTimeout(() => {
+                st = ScrollTrigger.create({
+                    trigger: fs,
+                    start: "top top",
+                    end: "bottom bottom",
+                    pin: fixed,
+                    pinSpacing: true,
+                    onUpdate: (self) => {
+                        if (motionOff || isSnappingRef.current) return;
+                        const prog = self.progress;
+                        const target = Math.min(total - 1, Math.floor(prog * total));
+                        if (target !== lastIndexRef.current && !isAnimatingRef.current) {
+                            const next = lastIndexRef.current + (target > lastIndexRef.current ? 1 : -1);
+                            // programmatic one-step snap without extra sound
+                            goTo(next, false);
+                        }
+                        if (progressFillRef.current) {
+                            const p = (lastIndexRef.current / (total - 1 || 1)) * 100;
+                            progressFillRef.current.style.width = `${p}%`;
+                        }
+                    },
+                });
+                stRef.current = st;
+            }, 100);
 
             // initial jump if needed
             if (initialIndex && initialIndex > 0 && initialIndex < total) {
@@ -292,7 +296,8 @@ export const FullScreenScrollFX = forwardRef<HTMLDivElement, FullScreenFXProps>(
 
             return () => {
                 ro.disconnect();
-                st.kill();
+                clearTimeout(timer);
+                if (st) st.kill();
                 stRef.current = null;
             };
             // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -721,7 +726,7 @@ export const FullScreenScrollFX = forwardRef<HTMLDivElement, FullScreenFXProps>(
             .fx-content {
               grid-template-columns: 1fr; row-gap: 3vh;
               place-items: center;
-              padding-top: 15vh; /* Push content down to avoid header overlap */
+              padding-top: 8vh; /* Push content down to avoid header overlap */
             }
             .fx-header {
                 padding-top: 4vh; /* Reduce header top padding */

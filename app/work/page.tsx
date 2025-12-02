@@ -4,10 +4,10 @@ import InfiniteGallery from '@/components/ui/3d-gallery-photography';
 
 export default function WorkPage() {
     const navLinks = [
-        { label: 'HOME', href: '/' },
-        { label: 'SERVICES', href: '#' },
+        { label: 'HOME', href: '/#home' },
+        { label: 'SERVICES', href: '/#services' },
         { label: 'WORK', href: '/work' },
-        { label: 'CONTACT', href: '#' },
+        { label: 'CONTACT', href: '/#contact' },
     ];
 
     const images = [
@@ -22,7 +22,7 @@ export default function WorkPage() {
         <main className="min-h-screen bg-background font-sans relative">
             <div className="absolute top-0 left-0 right-0 z-50 p-8 md:p-12">
                 <Navbar
-                    logoText="concept magnet"
+                    logoText={<><span className="text-primary">concept</span> M.</>}
                     navLinks={navLinks}
                     className="text-white"
                     linkClassName="text-white/80 hover:text-white"
