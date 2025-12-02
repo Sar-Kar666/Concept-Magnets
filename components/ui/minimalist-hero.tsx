@@ -8,7 +8,7 @@ import { Navbar } from './navbar';
 
 // Define the props interface for type safety and reusability
 interface MinimalistHeroProps {
-    logoText: string;
+    logoText: string | React.ReactNode;
     navLinks: { label: string; href: string }[];
     mainText: string;
     readMoreLink: string;
