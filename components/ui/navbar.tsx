@@ -26,17 +26,28 @@ export const Navbar = ({ logoText, navLinks, className, linkClassName }: NavbarP
                 >
                     <Link href="/" onClick={() => setIsMenuOpen(false)}>{logoText}</Link>
                 </motion.div>
-                <div className="hidden items-center space-x-8 md:flex">
-                    {navLinks.map((link) => (
-                        <Link
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1, staggerChildren: 0.1 }}
+                    className="hidden items-center space-x-8 md:flex"
+                >
+                    {navLinks.map((link, i) => (
+                        <motion.div
                             key={link.label}
-                            href={link.href}
-                            className={cn("text-sm font-medium tracking-widest text-foreground/60 transition-colors hover:text-foreground", linkClassName)}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.1 + i * 0.1 }}
                         >
-                            {link.label}
-                        </Link>
+                            <Link
+                                href={link.href}
+                                className={cn("text-sm font-medium tracking-widest text-foreground/60 transition-colors hover:text-foreground", linkClassName)}
+                            >
+                                {link.label}
+                            </Link>
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
                 <motion.button
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
