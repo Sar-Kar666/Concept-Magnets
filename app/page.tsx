@@ -24,7 +24,7 @@ export default function Home() {
     return (
         <main className="min-h-screen">
             <ScrollToTop />
-            <section id="home" className="mb-40 md:mb-20">
+            <section id="home" className="mb-40 md:mb-32">
                 <MinimalistHero
                     logoText={<><span className="text-primary">concept</span> M.</>}
                     navLinks={navLinks}
@@ -38,11 +38,11 @@ export default function Home() {
                     locationText="Global Agency"
                 />
             </section>
-            <section id="services">
+            <section id="services" className="py-20 md:py-32">
                 <ScrollFxDemo />
             </section>
             <ZoomParallaxDemo />
-            <section id="contact">
+            <section id="contact" className="py-20 md:py-32">
                 <GetInTouch />
             </section>
         </main>

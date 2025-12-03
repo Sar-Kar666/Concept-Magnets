@@ -1,111 +1,212 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useEffect, useRef } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, Mail, MapPin, Phone } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+if (typeof window !== "undefined") {
+    gsap.registerPlugin(ScrollTrigger);
+}
 
 interface GetInTouchProps {
     className?: string;
 }
 
 export const GetInTouch = ({ className }: GetInTouchProps) => {
+    const sectionRef = useRef<HTMLElement>(null);
+    const headingRef = useRef<HTMLHeadingElement>(null);
+    const textRef = useRef<HTMLParagraphElement>(null);
+    const buttonsRef = useRef<HTMLDivElement>(null);
+    const cardRef = useRef<HTMLDivElement>(null);
+    const blobRef = useRef<HTMLDivElement>(null);
+
+    // Magnetic button refs
+    const magneticBtnRef = useRef<HTMLAnchorElement>(null);
+
+    useEffect(() => {
+        const ctx = gsap.context(() => {
+            // 1. Parallax Background Blob
+            gsap.to(blobRef.current, {
+                yPercent: 30,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: 1,
+                },
+            });
+
+            // 2. Staggered Text Reveal
+            const tl = gsap.timeline({
+                scrollTrigger: {
+                    trigger: sectionRef.current,
+                    start: "top 70%",
+                    toggleActions: "play none none reverse",
+                }
+            });
+
+            tl.fromTo(headingRef.current,
+                { y: 50, opacity: 0, rotateX: -20 },
+                { y: 0, opacity: 1, rotateX: 0, duration: 1, ease: "power3.out" }
+            )
+                .fromTo(textRef.current,
+                    { y: 30, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+                    "-=0.6"
+                )
+                .fromTo(buttonsRef.current,
+                    { y: 30, opacity: 0 },
+                    { y: 0, opacity: 1, duration: 0.8, ease: "power3.out" },
+                    "-=0.6"
+                );
+
+            // 3. Card 3D Entrance
+            gsap.fromTo(cardRef.current,
+                { x: 100, opacity: 0, rotateY: 15 },
+                {
+                    x: 0,
+                    opacity: 1,
+                    rotateY: 0,
+                    duration: 1.2,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: sectionRef.current,
+                        start: "top 60%",
+                    }
+                }
+            );
+
+        }, sectionRef);
+
+        // Magnetic Button Effect
+        const btn = magneticBtnRef.current;
+        if (btn) {
+            const moveBtn = (e: MouseEvent) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                gsap.to(btn, {
+                    x: x * 0.3,
+                    y: y * 0.3,
+                    duration: 0.3,
+                    ease: "power2.out"
+                });
+            };
+
+            const resetBtn = () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: "elastic.out(1, 0.3)" });
+            };
+
+            btn.addEventListener('mousemove', moveBtn);
+            btn.addEventListener('mouseleave', resetBtn);
+
+            return () => {
+                btn.removeEventListener('mousemove', moveBtn);
+                btn.removeEventListener('mouseleave', resetBtn);
+                ctx.revert();
+            };
+        }
+
+        return () => ctx.revert();
+    }, []);
+
     return (
-        <section className={cn("relative w-full bg-background py-24 md:py-32 overflow-hidden", className)}>
-            <div className="container mx-auto px-4 md:px-6">
+        <section ref={sectionRef} className={cn("relative w-full bg-background py-24 md:py-32 overflow-hidden perspective-1000", className)}>
+            <div className="container mx-auto px-4 md:px-6 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
 
                     {/* Left Side: Heading & Call to Action */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6 }}
-                        className="space-y-8"
-                    >
-                        <h2 className="text-4xl md:text-6xl font-bold tracking-tighter text-foreground">
+                    <div className="space-y-8">
+                        <h2 ref={headingRef} className="text-4xl md:text-7xl font-bold tracking-tighter text-foreground leading-[0.9]">
                             Let's start a <br />
-                            <span className="text-[#00f0ff] drop-shadow-[0_0_15px_rgba(0,240,255,0.5)]">conversation.</span>
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]">
+                                conversation.
+                            </span>
                         </h2>
-                        <p className="text-lg text-foreground/70 max-w-md leading-relaxed">
+                        <p ref={textRef} className="text-lg md:text-xl text-foreground/70 max-w-md leading-relaxed">
                             Ready to take your digital presence to the next level? We're here to help you navigate the complexities of the modern web.
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                        <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-6 pt-4">
                             <a
+                                ref={magneticBtnRef}
                                 href="mailto:hello@conceptmagnet.com"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-black bg-gradient-to-r from-[#00f0ff] to-[#7000ff] rounded-full hover:shadow-[0_0_20px_rgba(0,240,255,0.5)] transition-all duration-300 group"
+                                className="relative inline-flex items-center justify-center px-10 py-5 text-lg font-bold text-black bg-white rounded-full hover:bg-gray-200 transition-colors duration-300 group overflow-hidden"
                             >
-                                Say Hello
-                                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                <span className="relative z-10 flex items-center">
+                                    Say Hello
+                                    <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+                                </span>
+                                <div className="absolute inset-0 bg-gradient-to-r from-white to-gray-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                             </a>
                             <a
                                 href="#"
-                                className="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-foreground border border-foreground/20 rounded-full hover:bg-foreground/5 hover:border-[#00f0ff] transition-all duration-300"
+                                className="inline-flex items-center justify-center px-10 py-5 text-lg font-medium text-foreground border border-foreground/20 rounded-full hover:bg-foreground/5 hover:border-white transition-all duration-300"
                             >
                                 View Services
                             </a>
                         </div>
-                    </motion.div>
+                    </div>
 
                     {/* Right Side: Contact Details & Visual */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.2 }}
-                        className="relative"
-                    >
-                        <div className="relative z-10 bg-black/40 backdrop-blur-md border border-white/10 rounded-3xl p-8 md:p-12 space-y-8 hover:border-[#7000ff] transition-colors duration-500">
-                            <div className="space-y-6">
-                                <div className="flex items-start space-x-4 group">
-                                    <div className="p-3 bg-[#00f0ff]/10 rounded-full group-hover:bg-[#00f0ff]/20 transition-colors">
-                                        <Mail className="h-6 w-6 text-[#00f0ff]" />
+                    <div ref={cardRef} className="relative perspective-1000">
+                        <div className="relative z-10 bg-black/40 backdrop-blur-xl border border-white/10 rounded-[2rem] p-8 md:p-12 space-y-8 hover:border-white/50 transition-colors duration-500 shadow-2xl shadow-black/50 group/card">
+                            <div className="space-y-8">
+                                <div className="flex items-start space-x-6 group/item">
+                                    <div className="p-4 bg-white/10 rounded-2xl group-hover/item:bg-white/20 transition-colors duration-300">
+                                        <Mail className="h-8 w-8 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-foreground group-hover:text-[#00f0ff] transition-colors">Email Us</h3>
-                                        <p className="text-foreground/60">hello@conceptmagnet.com</p>
+                                        <h3 className="text-xl font-bold text-foreground group-hover/item:text-white transition-colors">Email Us</h3>
+                                        <p className="text-foreground/60 mt-1">hello@conceptmagnet.com</p>
                                         <p className="text-foreground/60">careers@conceptmagnet.com</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start space-x-4 group">
-                                    <div className="p-3 bg-[#7000ff]/10 rounded-full group-hover:bg-[#7000ff]/20 transition-colors">
-                                        <MapPin className="h-6 w-6 text-[#7000ff]" />
+                                <div className="flex items-start space-x-6 group/item">
+                                    <div className="p-4 bg-white/10 rounded-2xl group-hover/item:bg-white/20 transition-colors duration-300">
+                                        <MapPin className="h-8 w-8 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-foreground group-hover:text-[#7000ff] transition-colors">Visit Us</h3>
-                                        <p className="text-foreground/60">123 Innovation Drive</p>
+                                        <h3 className="text-xl font-bold text-foreground group-hover/item:text-white transition-colors">Visit Us</h3>
+                                        <p className="text-foreground/60 mt-1">123 Innovation Drive</p>
                                         <p className="text-foreground/60">Tech City, TC 90210</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start space-x-4 group">
-                                    <div className="p-3 bg-[#ff0099]/10 rounded-full group-hover:bg-[#ff0099]/20 transition-colors">
-                                        <Phone className="h-6 w-6 text-[#ff0099]" />
+                                <div className="flex items-start space-x-6 group/item">
+                                    <div className="p-4 bg-white/10 rounded-2xl group-hover/item:bg-white/20 transition-colors duration-300">
+                                        <Phone className="h-8 w-8 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-semibold text-foreground group-hover:text-[#ff0099] transition-colors">Call Us</h3>
-                                        <p className="text-foreground/60">+1 (555) 123-4567</p>
+                                        <h3 className="text-xl font-bold text-foreground group-hover/item:text-white transition-colors">Call Us</h3>
+                                        <p className="text-foreground/60 mt-1">+1 (555) 123-4567</p>
                                         <p className="text-foreground/60">Mon-Fri from 9am to 6pm</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Decorative Gradient Blob */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-tr from-[#00f0ff]/30 via-[#7000ff]/30 to-[#ff0099]/30 blur-[100px] rounded-full -z-10 opacity-50 pointer-events-none animate-pulse" />
-                    </motion.div>
+                    </div>
                 </div>
 
                 <div className="mt-24 pt-8 border-t border-foreground/10 flex flex-col md:flex-row justify-between items-center text-sm text-foreground/50">
                     <p>&copy; {new Date().getFullYear()} Concept Magnet. All rights reserved.</p>
                     <div className="flex space-x-6 mt-4 md:mt-0">
-                        <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-                        <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
+                        <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
+                        <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
                     </div>
                 </div>
             </div>
+
+            {/* Decorative Gradient Blob */}
+            <div
+                ref={blobRef}
+                className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-to-bl from-white/10 via-gray-500/10 to-black/10 blur-[120px] rounded-full -z-10 opacity-60 pointer-events-none"
+            />
         </section>
     );
 };

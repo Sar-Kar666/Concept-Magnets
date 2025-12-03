@@ -100,6 +100,7 @@ export const MinimalistHero = ({
                 </motion.div>
             </div>
 
+
             {/* Footer Elements */}
             <footer className="z-30 flex w-full max-w-7xl items-center justify-between">
                 <motion.div

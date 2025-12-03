@@ -24,6 +24,21 @@ const sections = [
         title: <>Development</>,
         rightLabel: "Website",
     },
+    {
+        leftLabel: "Influencer",
+        title: "Marketing",
+        rightLabel: "Influencer",
+    },
+    {
+        leftLabel: "Meta",
+        title: "Ads",
+        rightLabel: "Meta",
+    },
+    {
+        leftLabel: "Content",
+        title: "Creation",
+        rightLabel: "Content",
+    },
 ];
 
 export default function ScrollFxDemo() {
